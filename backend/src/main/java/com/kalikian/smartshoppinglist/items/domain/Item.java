@@ -1,7 +1,9 @@
 package com.kalikian.smartshoppinglist.items.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "items")
@@ -12,7 +14,7 @@ public class Item {
     private Integer id;
 
     // Foreign key to the owning list (we’ll add a real relation later)
-    @Column(nullable = false)
+    @Column(name = "list_id", nullable = false)
     private Integer listId;
 
     @Column(nullable = false)
@@ -23,13 +25,15 @@ public class Item {
 
     private String category;
 
-    // Set once at creation time
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    // Set once at creation time (Hibernate Annotation)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
 
-    // Updated whenever a mutable field changes
-    @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    // Updated whenever a mutable field changes (Hibernate Annotation)
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
 
     public Item() {}
 
@@ -48,21 +52,18 @@ public class Item {
     public String getName() { return name; }
     public void setName(String name) {
         this.name = name;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public boolean isDone() { return done; }
     public void setDone(boolean done) {
         this.done = done;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public String getCategory() { return category; }
     public void setCategory(String category) {
         this.category = category;
-        this.updatedAt = LocalDateTime.now();
     }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
 }

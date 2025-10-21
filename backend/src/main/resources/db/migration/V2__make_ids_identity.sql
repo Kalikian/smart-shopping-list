@@ -1,0 +1,7 @@
+-- LISTS: int->identity
+ALTER TABLE lists
+    ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY;
+
+-- Items: int->identity
+ALTER TABLE items
+    ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY;
