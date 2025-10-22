@@ -84,7 +84,8 @@ public class ItemService {
         }
 
         if (newCategory != null) {
-            item.setCategory(trimOrNull(newCategory));
+            // apply even if "", meaning: clear the category
+            item.setCategory(newCategory);
         }
 
         if (done != null) {
@@ -99,9 +100,9 @@ public class ItemService {
             item.setQuantity(newQuantity);
         }
 
-        // NEW: unit (nullable) – trim and treat empty as null
         if (newUnit != null) {
-            item.setUnit(trimOrNull(newUnit));
+            // apply even if "", meaning: clear the unit
+            item.setUnit(newUnit);
         }
 
         // Dirty checking will flush on commit; save() explicit for clarity

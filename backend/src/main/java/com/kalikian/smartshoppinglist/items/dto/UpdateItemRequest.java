@@ -2,18 +2,21 @@ package com.kalikian.smartshoppinglist.items.dto;
 
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * BE request DTO for partially updating an existing Item.
  * All fields are optional; only provided values will be applied.
+ * Rule for name: if provided (non-null), it must not be blank.
  */
 public class UpdateItemRequest {
 
     @Size(max = 120, message = "Name must be at most 120 characters.")
-    private String name;        // optional
+    @Pattern(regexp = ".*\\S.*", message = "Name must not be blank when provided.")
+    private String name;        // optional; null = not provided; "" or whitespace => invalid
 
     @Size(max = 64, message = "Category must be at most 64 characters.")
-    private String category;    // optional
+    private String category;    // optional (null allowed)
 
     @PositiveOrZero(message = "Quantity must be >= 0.")
     private Double quantity;    // optional
@@ -23,37 +26,29 @@ public class UpdateItemRequest {
 
     private Boolean done;       // optional
 
-    // --- Getters & Setters (with light input hygiene) ---
+    // --- Getters & Setters ---
 
     public String getName() { return name; }
     public void setName(String name) {
-        this.name = trimOrNull(name);
+        // Trim but DO NOT convert empty to null; we want @Pattern to catch blanks.
+        this.name = (name == null) ? null : name.trim();
     }
 
     public String getCategory() { return category; }
     public void setCategory(String category) {
-        this.category = trimOrNull(category);
+        // Trim, but keep empty string "" if client wants to clear the field
+        this.category = (category == null) ? null : category.trim();
     }
 
     public Double getQuantity() { return quantity; }
-    public void setQuantity(Double quantity) {
-        this.quantity = quantity; // keep as-is; null means "not provided"
-    }
+    public void setQuantity(Double quantity) { this.quantity = quantity; }
 
     public String getUnit() { return unit; }
     public void setUnit(String unit) {
-        this.unit = trimOrNull(unit);
+        // Trim, but keep empty string "" to allow explicit clearing
+        this.unit = (unit == null) ? null : unit.trim();
     }
 
     public Boolean getDone() { return done; }
-    public void setDone(Boolean done) {
-        this.done = done; // null means "not provided"
-    }
-
-    // Normalize: trim whitespace; treat empty string as null
-    private static String trimOrNull(String s) {
-        if (s == null) return null;
-        String t = s.trim();
-        return t.isEmpty() ? null : t;
-    }
+    public void setDone(Boolean done) { this.done = done; }
 }
