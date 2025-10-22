@@ -20,15 +20,31 @@ public class ItemService {
     // ---------- Create ----------
 
     @Transactional
-    public Item createItem(Integer listId, String name, String category) {
-        // Basic input hygiene
-        String cleanedName = (name == null) ? "" : name.trim();
-        if (cleanedName.isEmpty()) {
+    public Item createItem(Integer listId, String name, String category, Double quantity, String unit) {
+        // Normalize and validate required fields
+        final String cleanedName = trimOrNull(name);
+        if (cleanedName == null) {
             throw new IllegalArgumentException("Item name must not be blank.");
         }
 
-        Item item = new Item(listId, cleanedName, trimOrNull(category));
-        // done=false is default on entity
+        // Normalize optional strings
+        final String cleanedCategory = trimOrNull(category);
+        final String cleanedUnit = trimOrNull(unit);
+
+        // Use required-fields constructor to enforce invariants
+        Item item = new Item(listId, cleanedName, cleanedCategory);
+
+        // Set optional fields only if provided
+        if (quantity != null) {
+            item.setQuantity(quantity);
+        }
+        if (cleanedUnit != null) {
+            item.setUnit(cleanedUnit);
+        }
+
+        // Make default explicit (even though entity default is false)
+        item.setDone(false);
+
         return repo.save(item);
     }
 
@@ -48,24 +64,47 @@ public class ItemService {
     // ---------- Update ----------
 
     @Transactional
-    public Item updateItem(Integer listId, Integer itemId, String newName, String newCategory, Boolean done) {
+    public Item updateItem(
+            Integer listId,
+            Integer itemId,
+            String newName,
+            String newCategory,
+            Boolean done,
+            Double newQuantity,
+            String newUnit
+    ) {
         Item item = repo.findByIdAndListId(itemId, listId)
                 .orElseThrow(() -> notFound(itemId, listId));
 
-        // Only update the fields that are provided (simple partial update)
+        // Update only provided fields (partial update)
         if (newName != null) {
-            String cleaned = newName.trim();
-            if (cleaned.isEmpty()) throw new IllegalArgumentException("Item name must not be blank.");
+            String cleaned = trimOrNull(newName);
+            if (cleaned == null) throw new IllegalArgumentException("Item name must not be blank.");
             item.setName(cleaned);
         }
+
         if (newCategory != null) {
             item.setCategory(trimOrNull(newCategory));
         }
+
         if (done != null) {
             item.setDone(done);
         }
 
-        // Dirty checking will flush changes on commit; save() is optional, but explicit is fine
+        // NEW: quantity (nullable) – if provided, set it; allow zero or positive
+        if (newQuantity != null) {
+            if (newQuantity < 0) {
+                throw new IllegalArgumentException("Quantity must be >= 0.");
+            }
+            item.setQuantity(newQuantity);
+        }
+
+        // NEW: unit (nullable) – trim and treat empty as null
+        if (newUnit != null) {
+            item.setUnit(trimOrNull(newUnit));
+        }
+
+        // Dirty checking will flush on commit; save() explicit for clarity
         return repo.save(item);
     }
 

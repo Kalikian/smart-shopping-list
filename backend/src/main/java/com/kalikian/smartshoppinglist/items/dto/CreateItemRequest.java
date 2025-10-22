@@ -1,39 +1,38 @@
 package com.kalikian.smartshoppinglist.items.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
-/**
- * BE request DTO for creating a new Item.
- * Validates incoming JSON from the client.
- *
- * Notes:
- * - Use boxed types (Double/Boolean) for optional fields to allow null = "not provided".
- * - Keep this decoupled from the JPA entity.
- */
 public class CreateItemRequest {
+
+    @NotNull(message = "listId is required.")
+    private Integer listId; // keep Integer to match Entity/Service
 
     @NotBlank(message = "Name must not be blank.")
     @Size(max = 120, message = "Name must be at most 120 characters.")
     private String name;
 
-    @Positive(message = "Quantity must be greater than 0.")
-    private Double quantity; // optional
+    @Size(max = 64, message = "Category must be at most 64 characters.")
+    private String category;
+
+    // Optional; if provided, must be >= 0
+    @PositiveOrZero(message = "Quantity must be >= 0.")
+    private Double quantity;
 
     @Size(max = 24, message = "Unit must be at most 24 characters.")
-    private String unit;     // optional
+    private String unit;
 
-    // Optional initial done state; if null, service should default to false
+    // Optional; default to false in service if null
     private Boolean done;
 
-    // --- Getters & Setters ---
-    public String getName() { return name; }
+    // --- Getters / Setters ---
+    public Integer getListId() { return listId; }
+    public void setListId(Integer listId) { this.listId = listId; }
 
-    public void setName(String name) {
-        // Trim incoming whitespace; keep null as null to let @NotBlank handle empties
-        this.name = (name == null) ? null : name.trim();
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = (name == null) ? null : name.trim(); }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = (category == null) ? null : category.trim(); }
 
     public Double getQuantity() { return quantity; }
     public void setQuantity(Double quantity) { this.quantity = quantity; }

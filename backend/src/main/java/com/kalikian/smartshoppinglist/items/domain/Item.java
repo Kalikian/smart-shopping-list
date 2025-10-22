@@ -23,7 +23,17 @@ public class Item {
     @Column(nullable = false)
     private boolean done = false;
 
+    @Column
     private String category;
+
+    // NEW: quantity and unit (both optional)
+    // quantity maps to DOUBLE PRECISION (nullable)
+    @Column
+    private Double quantity;
+
+    // unit maps to TEXT (nullable)
+    @Column
+    private String unit;
 
     // Set once at creation time (Hibernate Annotation)
     @CreationTimestamp
@@ -44,24 +54,40 @@ public class Item {
         this.category = category;
     }
 
-    // Getters & setters
+    // Convenience constructor for required + optional fields
+    public Item(Integer listId, String name, String category, Double quantity, String unit) {
+        this(listId, name, category);
+        this.quantity = quantity;                           // may be null
+        this.unit = (unit == null) ? null : unit.trim();    // may be null
+    }
+
+    // --- Getters & Setters ---
+
     public Integer getId() { return id; }
+
     public Integer getListId() { return listId; }
     public void setListId(Integer listId) { this.listId = listId; }
 
     public String getName() { return name; }
     public void setName(String name) {
-        this.name = name;
+        // basic input hygiene (trim while keeping null as null)
+        this.name = (name == null) ? null : name.trim();
     }
 
     public boolean isDone() { return done; }
-    public void setDone(boolean done) {
-        this.done = done;
-    }
+    public void setDone(boolean done) { this.done = done; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) {
-        this.category = category;
+        this.category = (category == null) ? null : category.trim();
+    }
+
+    public Double getQuantity() { return quantity; }
+    public void setQuantity(Double quantity) { this.quantity = quantity; }
+
+    public String getUnit() { return unit; }
+    public void setUnit(String unit) {
+        this.unit = (unit == null) ? null : unit.trim();
     }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
