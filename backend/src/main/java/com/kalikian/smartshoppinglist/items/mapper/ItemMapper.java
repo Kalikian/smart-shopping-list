@@ -1,4 +1,4 @@
-package com.kalikian.smartshoppinglist.items;
+package com.kalikian.smartshoppinglist.items.mapper;
 
 import com.kalikian.smartshoppinglist.items.domain.Item;
 import com.kalikian.smartshoppinglist.items.dto.ItemResponse;
