@@ -30,7 +30,7 @@ public class ItemController {
     // ---------------- Create ----------------
 
     /**
-     * Create a new item. We accept listId in the body (matches your CreateItemRequest).
+     * Create a new item. We accept listId in the body (matches the CreateItemRequest).
      * If you prefer a nested route (/lists/{listId}/items), we can easily add it later.
      */
     @PostMapping("/items")
